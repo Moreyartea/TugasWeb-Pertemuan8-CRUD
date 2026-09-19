@@ -126,6 +126,7 @@ unset($_SESSION['flash']);
 
     <p>
         <a href="create.php">Tambah Produk</a>
+        <a href="export.php">Export CSV</a>
     </p>
 
     <table border="1" cellpadding="8" cellspacing="0">
