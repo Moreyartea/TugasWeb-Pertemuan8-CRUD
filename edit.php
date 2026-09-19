@@ -125,91 +125,124 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Produk</title>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-    <h1>Edit Produk</h1>
+    <div class="container">
 
-    <?php if ($errors): ?>
-        <div>
-            <?php foreach ($errors as $error): ?>
-                <p><?= htmlspecialchars($error) ?></p>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-
-    <form method="POST" action="">
-        <div>
-            <label for="name">Nama Produk</label>
-            <input
-                type="text"
-                id="name"
-                name="name"
-                value="<?= htmlspecialchars($product['name']) ?>"
-                required
-            >
+        <div class="header">
+            <h1>Edit Produk</h1>
         </div>
 
-        <div>
-            <label for="price">Harga</label>
-            <input
-                type="number"
-                id="price"
-                name="price"
-                min="0"
-                step="0.01"
-                value="<?= htmlspecialchars((string) $product['price']) ?>"
-                required
-            >
-        </div>
+        <div class="card">
 
-        <div>
-            <label for="stock">Stok</label>
-            <input
-                type="number"
-                id="stock"
-                name="stock"
-                min="0"
-                value="<?= htmlspecialchars((string) $product['stock']) ?>"
-                required
-            >
-        </div>
+            <?php if ($errors): ?>
+                <div class="flash flash-error">
+                    <?php foreach ($errors as $error): ?>
+                        <div><?= htmlspecialchars($error) ?></div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
 
-        <div>
-            <label for="category_id">Kategori</label>
-            <select id="category_id" name="category_id" required>
-                <option value="">-- Pilih Kategori --</option>
+            <form method="POST" action="">
 
-                <?php foreach ($categories as $category): ?>
-                    <option
-                        value="<?= (int) $category['id'] ?>"
-                        <?= (int) $product['category_id'] === (int) $category['id'] ? 'selected' : '' ?>
+                <div class="form-group">
+                    <label for="name">Nama Produk</label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value="<?= htmlspecialchars($product['name']) ?>"
+                        required
                     >
-                        <?= htmlspecialchars($category['name']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+                </div>
 
-        <div>
-            <label for="supplier_id">Supplier</label>
-            <select id="supplier_id" name="supplier_id" required>
-                <option value="">-- Pilih Supplier --</option>
+                <div class="form-group">
+                    <label for="price">Harga</label>
 
-                <?php foreach ($suppliers as $supplier): ?>
-                    <option
-                        value="<?= (int) $supplier['id'] ?>"
-                        <?= (int) $product['supplier_id'] === (int) $supplier['id'] ? 'selected' : '' ?>
+                    <input
+                        type="number"
+                        id="price"
+                        name="price"
+                        min="0"
+                        step="0.01"
+                        value="<?= htmlspecialchars((string) $product['price']) ?>"
+                        required
                     >
-                        <?= htmlspecialchars($supplier['name']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="stock">Stok</label>
+
+                    <input
+                        type="number"
+                        id="stock"
+                        name="stock"
+                        min="0"
+                        value="<?= htmlspecialchars((string) $product['stock']) ?>"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="category_id">Kategori</label>
+
+                    <select
+                        id="category_id"
+                        name="category_id"
+                        required
+                    >
+                        <option value="">-- Pilih Kategori --</option>
+
+                        <?php foreach ($categories as $category): ?>
+                            <option
+                                value="<?= (int) $category['id'] ?>"
+                                <?= (int) $product['category_id'] === (int) $category['id'] ? 'selected' : '' ?>
+                            >
+                                <?= htmlspecialchars($category['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="supplier_id">Supplier</label>
+
+                    <select
+                        id="supplier_id"
+                        name="supplier_id"
+                        required
+                    >
+                        <option value="">-- Pilih Supplier --</option>
+
+                        <?php foreach ($suppliers as $supplier): ?>
+                            <option
+                                value="<?= (int) $supplier['id'] ?>"
+                                <?= (int) $product['supplier_id'] === (int) $supplier['id'] ? 'selected' : '' ?>
+                            >
+                                <?= htmlspecialchars($supplier['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">
+                        Simpan Perubahan
+                    </button>
+
+                    <a href="index.php" class="btn btn-secondary">
+                        Kembali
+                    </a>
+                </div>
+
+            </form>
+
         </div>
 
-        <button type="submit">Simpan Perubahan</button>
-        <a href="index.php">Kembali</a>
-    </form>
+    </div>
 
 </body>
 </html>

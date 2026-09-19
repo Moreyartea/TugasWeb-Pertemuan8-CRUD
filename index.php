@@ -101,102 +101,159 @@ unset($_SESSION['flash']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventaris Barang</title>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-    <h1>Inventaris Barang</h1>
+    <div class="container">
 
-    <?php if ($flash): ?>
-        <p><?= htmlspecialchars($flash['message']) ?></p>
-    <?php endif; ?>
-
-    <form method="GET" action="index.php">
-        <input
-            type="text"
-            name="search"
-            placeholder="Cari produk, kategori, atau supplier..."
-            value="<?= htmlspecialchars($search) ?>"
-        >
-        <button type="submit">Cari</button>
-
-        <?php if ($search !== ''): ?>
-            <a href="index.php">Reset</a>
-        <?php endif; ?>
-    </form>
-
-    <p>
-        <a href="create.php">Tambah Produk</a>
-        <a href="export.php">Export CSV</a>
-    </p>
-
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Nama Produk</th>
-                <th>Harga</th>
-                <th>Stok</th>
-                <th>Kategori</th>
-                <th>Supplier</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (!$products): ?>
-                <tr>
-                    <td colspan="7">Data produk tidak ditemukan.</td>
-                </tr>
-            <?php else: ?>
-                <?php foreach ($products as $index => $product): ?>
-                    <tr>
-                        <td><?= $offset + $index + 1 ?></td>
-                        <td><?= htmlspecialchars($product['name']) ?></td>
-                        <td>Rp <?= number_format((float) $product['price'], 0, ',', '.') ?></td>
-                        <td><?= htmlspecialchars((string) $product['stock']) ?></td>
-                        <td><?= htmlspecialchars($product['category_name']) ?></td>
-                        <td><?= htmlspecialchars($product['supplier_name']) ?></td>
-                        <td>
-                            <a href="edit.php?id=<?= (int) $product['id'] ?>">Edit</a>
-
-                            <form
-                                method="POST"
-                                action="delete.php"
-                                style="display: inline;"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?');"
-                            >
-                                <input
-                                    type="hidden"
-                                    name="id"
-                                    value="<?= (int) $product['id'] ?>"
-                                >
-                                <button type="submit">Hapus</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
-    </table>
-
-    <?php if ($totalPages > 1): ?>
-        <div>
-            <?php if ($page > 1): ?>
-                <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">
-                    Sebelumnya
-                </a>
-            <?php endif; ?>
-
-            <span>
-                Halaman <?= $page ?> dari <?= $totalPages ?>
-            </span>
-
-            <?php if ($page < $totalPages): ?>
-                <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">
-                    Berikutnya
-                </a>
-            <?php endif; ?>
+        <div class="header">
+            <h1>Inventaris Barang</h1>
         </div>
-    <?php endif; ?>
+
+        <?php if ($flash): ?>
+            <div class="flash <?= $flash['type'] === 'error' ? 'flash-error' : '' ?>">
+                <?= htmlspecialchars($flash['message']) ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="card">
+
+            <div class="toolbar">
+
+                <form method="GET" action="index.php" class="search-form">
+                    <input
+                        type="text"
+                        name="search"
+                        placeholder="Cari produk, kategori, atau supplier..."
+                        value="<?= htmlspecialchars($search) ?>"
+                    >
+
+                    <button type="submit">Cari</button>
+
+                    <?php if ($search !== ''): ?>
+                        <a href="index.php" class="btn btn-secondary">Reset</a>
+                    <?php endif; ?>
+                </form>
+
+                <div>
+                    <a href="create.php" class="btn btn-success">Tambah Produk</a>
+                    <a href="export.php" class="btn">Export CSV</a>
+                </div>
+
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Produk</th>
+                        <th>Harga</th>
+                        <th>Stok</th>
+                        <th>Kategori</th>
+                        <th>Supplier</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <?php if (!$products): ?>
+                        <tr>
+                            <td colspan="7" class="empty">
+                                Data produk tidak ditemukan.
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($products as $index => $product): ?>
+                            <tr>
+                                <td><?= $offset + $index + 1 ?></td>
+
+                                <td>
+                                    <?= htmlspecialchars($product['name']) ?>
+                                </td>
+
+                                <td>
+                                    Rp <?= number_format((float) $product['price'], 0, ',', '.') ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars((string) $product['stock']) ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($product['category_name']) ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($product['supplier_name']) ?>
+                                </td>
+
+                                <td>
+                                    <div class="actions">
+
+                                        <a
+                                            href="edit.php?id=<?= (int) $product['id'] ?>"
+                                            class="btn btn-secondary"
+                                        >
+                                            Edit
+                                        </a>
+
+                                        <form
+                                            method="POST"
+                                            action="delete.php"
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?');"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="id"
+                                                value="<?= (int) $product['id'] ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-danger"
+                                            >
+                                                Hapus
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+
+            <?php if ($totalPages > 1): ?>
+                <div class="pagination">
+
+                    <?php if ($page > 1): ?>
+                        <a
+                            href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>"
+                        >
+                            Sebelumnya
+                        </a>
+                    <?php endif; ?>
+
+                    <span>
+                        Halaman <?= $page ?> dari <?= $totalPages ?>
+                    </span>
+
+                    <?php if ($page < $totalPages): ?>
+                        <a
+                            href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>"
+                        >
+                            Berikutnya
+                        </a>
+                    <?php endif; ?>
+
+                </div>
+            <?php endif; ?>
+
+        </div>
+
+    </div>
 
 </body>
 </html>
