@@ -6,7 +6,49 @@ require_once __DIR__ . '/config/database.php';
 
 $db = Database::getInstance()->getConnection();
 
-$stmt = $db->prepare("
+$search = trim($_GET['search'] ?? '');
+$page = max(1, (int) ($_GET['page'] ?? 1));
+$perPage = 5;
+$offset = ($page - 1) * $perPage;
+
+$countSql = "
+    SELECT COUNT(*)
+    FROM products
+    INNER JOIN categories ON products.category_id = categories.id
+    INNER JOIN suppliers ON products.supplier_id = suppliers.id
+";
+
+if ($search !== '') {
+    $countSql .= "
+        WHERE products.name LIKE :product_search
+        OR categories.name LIKE :category_search
+        OR suppliers.name LIKE :supplier_search
+    ";
+}
+
+$countStmt = $db->prepare($countSql);
+
+if ($search !== '') {
+    $searchValue = '%' . $search . '%';
+
+    $countStmt->execute([
+        ':product_search' => $searchValue,
+        ':category_search' => $searchValue,
+        ':supplier_search' => $searchValue
+    ]);
+} else {
+    $countStmt->execute();
+}
+
+$totalProducts = (int) $countStmt->fetchColumn();
+$totalPages = max(1, (int) ceil($totalProducts / $perPage));
+
+if ($page > $totalPages) {
+    $page = $totalPages;
+    $offset = ($page - 1) * $perPage;
+}
+
+$sql = "
     SELECT
         products.id,
         products.name,
@@ -17,8 +59,33 @@ $stmt = $db->prepare("
     FROM products
     INNER JOIN categories ON products.category_id = categories.id
     INNER JOIN suppliers ON products.supplier_id = suppliers.id
+";
+
+if ($search !== '') {
+    $sql .= "
+        WHERE products.name LIKE :product_search
+        OR categories.name LIKE :category_search
+        OR suppliers.name LIKE :supplier_search
+    ";
+}
+
+$sql .= "
     ORDER BY products.id DESC
-");
+    LIMIT :limit OFFSET :offset
+";
+
+$stmt = $db->prepare($sql);
+
+if ($search !== '') {
+    $searchValue = '%' . $search . '%';
+
+    $stmt->bindValue(':product_search', $searchValue, PDO::PARAM_STR);
+    $stmt->bindValue(':category_search', $searchValue, PDO::PARAM_STR);
+    $stmt->bindValue(':supplier_search', $searchValue, PDO::PARAM_STR);
+}
+
+$stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
 $stmt->execute();
 
@@ -43,6 +110,20 @@ unset($_SESSION['flash']);
         <p><?= htmlspecialchars($flash['message']) ?></p>
     <?php endif; ?>
 
+    <form method="GET" action="index.php">
+        <input
+            type="text"
+            name="search"
+            placeholder="Cari produk, kategori, atau supplier..."
+            value="<?= htmlspecialchars($search) ?>"
+        >
+        <button type="submit">Cari</button>
+
+        <?php if ($search !== ''): ?>
+            <a href="index.php">Reset</a>
+        <?php endif; ?>
+    </form>
+
     <p>
         <a href="create.php">Tambah Produk</a>
     </p>
@@ -62,12 +143,12 @@ unset($_SESSION['flash']);
         <tbody>
             <?php if (!$products): ?>
                 <tr>
-                    <td colspan="7">Belum ada data produk.</td>
+                    <td colspan="7">Data produk tidak ditemukan.</td>
                 </tr>
             <?php else: ?>
                 <?php foreach ($products as $index => $product): ?>
                     <tr>
-                        <td><?= $index + 1 ?></td>
+                        <td><?= $offset + $index + 1 ?></td>
                         <td><?= htmlspecialchars($product['name']) ?></td>
                         <td>Rp <?= number_format((float) $product['price'], 0, ',', '.') ?></td>
                         <td><?= htmlspecialchars((string) $product['stock']) ?></td>
@@ -95,6 +176,26 @@ unset($_SESSION['flash']);
             <?php endif; ?>
         </tbody>
     </table>
+
+    <?php if ($totalPages > 1): ?>
+        <div>
+            <?php if ($page > 1): ?>
+                <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">
+                    Sebelumnya
+                </a>
+            <?php endif; ?>
+
+            <span>
+                Halaman <?= $page ?> dari <?= $totalPages ?>
+            </span>
+
+            <?php if ($page < $totalPages): ?>
+                <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">
+                    Berikutnya
+                </a>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 
 </body>
 </html>
